@@ -4,6 +4,10 @@
 # Your Organization's Initial Enrollment Script
 # Last Edited September 2021
 # Created by Jeff Pearson
+# This script is an advanced way to collect information from the end user.
+# It contains several forms of error checking, and is easily extensible
+# To point to several different MDM policies that also run scripts which
+# can do things like install pre-determined sets of software
 #################################
 
 # Imports
@@ -36,41 +40,51 @@ proc_get_jamf = subprocess.run(["/usr/bin/which", "jamf"], capture_output=True)
 jamf_binary = proc_get_jamf.stdout.decode('ascii').rstrip()
 
 # Lab Room Variables
-# These contain parts of names 
+# Each of these is an array that contains part of a name. For example, if you have a lab
+# called LABJOE, and the computers are named LABJOE1, LABJOE2, etc. Then you could have a 
+# variable called LABJOE that contains LABJOE. You would then edit the rest of the script
+# (You can use find and replace) to use that set of naming conventions. That array would then
+# affect all computers with LABJOE in the name. Note that computer names are set to all-caps
+# automatically.
 LAB1 = ['LAB1']
-LAB2 = ['LAB1']
-LAB3 = ['LAB1']
-LAB4 = ['LAB1']
-LAB5 = ['LAB1']
-LAB6 = ['LAB1']
-LAB7 = ['LAB1']
-LAB8 = ['LAB1']
-LAB9 = ['LAB1']
-LAB10 = ['LAB1', 'NAME1']
+LAB2 = ['LAB2']
+LAB3 = ['LAB3']
+LAB4 = ['LAB4']
+LAB5 = ['LAB5']
+LAB6 = ['LAB6']
+LAB7 = ['LAB7']
+LAB8 = ['LAB8']
+LAB9 = ['LAB9']
+LAB10 = ['LAB10', 'NAME1']
 
 # Advanced Tools
 CONFIGS = ['LAB1', 'LAB2', 'LAB3', 'LAB4', 'LAB5', 'LAB6', 'LAB7', 'LAB8', 'LAB9', 'LAB10']
 selected_config = None
 
-# Define any necessary functions
+# Creates a log file and clears it if it is already there. 
 def log_init():
     log_file = open(log_file_path, 'w')
     dt_current = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log_file.write(dt_current + " Logging Initialized" + '\n')
     log_file.close()
 
+# Appends to the log file, and adds timestamps automatically
 def log(log_data):
     log_file = open(log_file_path, 'a')
     dt_current = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log_file.write(dt_current + " " + log_data + '\n')
     log_file.close()
 
+# Simply prints that the logging is terminated. 
+# Designed to run once at the end of the script
 def log_end():
     log_file = open(log_file_path, 'a')
     dt_current = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log_file.write(dt_current + " Logging Terminated" + '\n')
     log_file.close()
 
+# Returns the configuration that is supposed to take effect
+# based upon the computer name passed to it
 def get_config(computer_name):
     # Still need to get first 5 or 6 of computer name
     if any(name in computer_name for name in LAB1):
@@ -100,6 +114,10 @@ def get_config(computer_name):
 caffeinate_process = subprocess.Popen("exec " + "/usr/bin/caffeinate", stdout=subprocess.PIPE, 
                        shell=True)
 
+
+# Creates the main info collection window
+# Also calls all other functions
+# which can verify information and upload it.
 def main():
     # Draw Information Collection Window
     sg.theme('LightGrey1')
@@ -293,6 +311,7 @@ def main():
 
 
 
+# Displays a window that offers help with the computer naming conventions.
 def help():
     # Draw Help Window
     sg.theme('LightGrey1')
@@ -387,6 +406,10 @@ def help():
                 "Example Computer Name - Installed in 2021, in Lab 1, computer number 01\nSecond Example here",
                 "Lab")
 
+
+
+# Displays some information to the user - designed to display 
+# config/naming info from the help screen
 def info(window_title, naming_convention, name_examples, room_numbers=None):
     sg.theme('LightGrey1')
     title_font = ("Helvetica", 16, "bold")
