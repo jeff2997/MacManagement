@@ -419,7 +419,11 @@ def info(window_title, naming_convention, name_examples, room_numbers=None):
 
 
 
-# Returns a computer name
+# Returns a computer name that it collects from the user
+# Also displays an error message to the user (passed as a parameter)
+# so that they know approximately what they have to fix
+# Also takes a suggested name, which is generated and assumed
+# not to have any problems.
 def name_query(error, name, suggested_name):
     sg.theme('LightGrey1')
     title_font = ("Helvetica", 16, "bold")
